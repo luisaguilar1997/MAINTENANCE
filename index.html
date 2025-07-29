@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Acceso (Solo Abrir)</title>
-    
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png"> 
-    <meta name="theme-color" content="#195B6A">
-
+    <title>Control de Acceso (Blynk HTTP API)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,22 +27,22 @@
             color: #195B6A;
             margin-bottom: 25px;
         }
-        button {
+        .button-group button {
             background-color: #195B6A;
             color: white;
-            padding: 20px 40px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 8px;
-            font-size: 24px;
-            margin: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            margin: 10px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            min-width: 200px;
+            min-width: 150px; /* Para que los botones tengan un tamaño similar */
         }
-        button:hover {
+        .button-group button:hover {
             background-color: #0d3b44;
         }
-        button:active {
+        .button-group button:active {
             background-color: #0a2d34;
         }
         #statusMessage {
@@ -56,10 +51,10 @@
             color: #555;
         }
         #statusMessage.success {
-            color: #28a745;
+            color: #28a745; /* Verde para éxito */
         }
         #statusMessage.error {
-            color: #dc3545;
+            color: #dc3545; /* Rojo para error */
         }
         .note {
             margin-top: 30px;
@@ -71,34 +66,38 @@
 <body>
     <div class="container">
         <h1>Control de Acceso (Mantenimiento)</h1>
-        <button id="btnOpen">ABRIR PUERTA</button>
+        <div class="button-group">
+            <button id="btnOpen">ABRIR PUERTA</button>
+            <button id="btnClose">CERRAR PUERTA</button>
+        </div>
         <p id="statusMessage"></p>
     </div>
 
     <div class="note">
         <p>Asegúrate de que tu ESP8266 esté conectado a Internet y a Blynk.</p>
-        <p>La puerta se cerrará automáticamente después de 5 segundos.</p>
-        <p>Este control usa la API HTTP de Blynk.</p>
+        <p>Este control usa la API HTTP de Blynk. El Auth Token se encuentra en el código fuente de esta página.</p>
     </div>
 
     <script>
         // --- CONFIGURACIÓN DE BLYNK ---
-        const BLYNK_AUTH_TOKEN = "YxdPUe_5zuLJys0DpyHxtl85VUfwt_FR";
-        const VIRTUAL_PIN = "V1";
+        // !!! MUY IMPORTANTE: REEMPLAZA "TU_AUTH_TOKEN_AQUI" CON TU TOKEN REAL DE BLYNK !!!
+        const BLYNK_AUTH_TOKEN = "YxdPUe_5zuLJys0DpyHxtl85VUfwt_FR"; // Tu token de autenticación de Blynk
+        const VIRTUAL_PIN = "V1"; // El pin virtual que configuraste en Blynk (ej: V1)
         // --------------------------------
 
         const BASE_URL = `http://blynk.cloud/external/api/update?token=${BLYNK_AUTH_TOKEN}&${VIRTUAL_PIN}=`;
         const statusMessage = document.getElementById('statusMessage');
 
+        // Función para enviar comandos a Blynk
         async function sendBlynkCommand(value) {
             const url = BASE_URL + value;
             statusMessage.textContent = 'Enviando comando...';
-            statusMessage.className = '';
+            statusMessage.className = ''; // Limpia clases de estado anteriores
 
             try {
                 const response = await fetch(url);
-                if (response.ok) {
-                    statusMessage.textContent = `Comando enviado exitosamente: ${value === 1 ? 'ABIERTO' : 'CERRADO'}`;
+                if (response.ok) { // Verifica si la respuesta HTTP fue exitosa (código 200)
+                    statusMessage.textContent = `Comando enviado exitosamente: ${value === 1 ? 'ON' : 'OFF'}`;
                     statusMessage.className = 'success';
                 } else {
                     const errorText = await response.text();
@@ -111,22 +110,9 @@
             }
         }
 
-        document.getElementById('btnOpen').addEventListener('click', () => {
-            sendBlynkCommand(1);
-        });
-
-        // --- Registro del Service Worker ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registrado con éxito:', registration);
-                    })
-                    .catch(error => {
-                        console.error('Fallo el registro del Service Worker:', error);
-                    });
-            });
-        }
+        // Asignar funciones a los botones
+        document.getElementById('btnOpen').addEventListener('click', () => sendBlynkCommand(1));
+        document.getElementById('btnClose').addEventListener('click', () => sendBlynkCommand(0));
     </script>
 </body>
 </html>
