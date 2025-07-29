@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Control (Open Only)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #195B6A;
+            margin-bottom: 25px;
+        }
+        button { /* Styles for a single button */
+            background-color: #195B6A;
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 24px;
+            margin: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            min-width: 200px;
+        }
+        button:hover {
+            background-color: #0d3b44;
+        }
+        button:active {
+            background-color: #0a2d34;
+        }
+        #statusMessage {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #555;
+        }
+        #statusMessage.success {
+            color: #28a745; /* Green for success */
+        }
+        #statusMessage.error {
+            color: #dc3545; /* Red for error */
+        }
+        .note {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Maintenance Access Control</h1>
+        <button id="btnOpen">OPEN GATE</button>
+        <p id="statusMessage"></p>
+    </div>
+
+    <div class="note">
+        <p>Ensure your ESP8266 is connected to the internet and Blynk Cloud.</p>
+        <p>The gate will automatically close after 5 seconds.</p>
+        <p>This control uses the Blynk HTTP API.</p>
+    </div>
+
+    <script>
+        // --- BLYNK CONFIGURATION ---
+        // !!! IMPORTANT: REPLACE "YOUR_AUTH_TOKEN_HERE" WITH YOUR ACTUAL BLYNK AUTH TOKEN !!!
+        const BLYNK_AUTH_TOKEN = "YxdPUe_5zuLJys0DpyHxtl85VUfwt_FR"; // Your Blynk Auth Token
+        const VIRTUAL_PIN = "V1"; // The Virtual Pin you configured in Blynk (e.g., V1)
+        // --------------------------------
+
+        const BASE_URL = `http://blynk.cloud/external/api/update?token=${BLYNK_AUTH_TOKEN}&${VIRTUAL_PIN}=`;
+        const statusMessage = document.getElementById('statusMessage');
+
+        // Function to send commands to Blynk
+        async function sendBlynkCommand(value) {
+            const url = BASE_URL + value;
+            statusMessage.textContent = 'Sending command...';
+            statusMessage.className = ''; // Clear previous status classes
+
+            try {
+                const response = await fetch(url);
+                if (response.ok) { // Check if the HTTP response was successful (status code 200)
+                    statusMessage.textContent = `Command sent successfully: ${value === 1 ? 'OPENED' : 'CLOSED'}`;
+                    statusMessage.className = 'success';
+                } else {
+                    const errorText = await response.text();
+                    statusMessage.textContent = `Error sending command. Code: ${response.status} - ${errorText}`;
+                    statusMessage.className = 'error';
+                }
+            } catch (error) {
+                statusMessage.textContent = `Network error: ${error.message}. Check your connection or token.`;
+                statusMessage.className = 'error';
+            }
+        }
+
+        // Assign function to the open button
+        document.getElementById('btnOpen').addEventListener('click', () => {
+            sendBlynkCommand(1); // Always send 1 (ON)
+        });
+    </script>
+</body>
+</html>
