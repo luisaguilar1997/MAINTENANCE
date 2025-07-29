@@ -1,14 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Acceso (Solo Abrir)</title>
-    
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png"> 
-    <meta name="theme-color" content="#195B6A">
-
+    <title>Access Control (Open Only)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,7 +27,7 @@
             color: #195B6A;
             margin-bottom: 25px;
         }
-        button {
+        button { /* Styles for a single button */
             background-color: #195B6A;
             color: white;
             padding: 20px 40px;
@@ -56,10 +51,10 @@
             color: #555;
         }
         #statusMessage.success {
-            color: #28a745;
+            color: #28a745; /* Green for success */
         }
         #statusMessage.error {
-            color: #dc3545;
+            color: #dc3545; /* Red for error */
         }
         .note {
             margin-top: 30px;
@@ -70,63 +65,53 @@
 </head>
 <body>
     <div class="container">
-        <h1>Control de Acceso (Mantenimiento)</h1>
-        <button id="btnOpen">ABRIR PUERTA</button>
+        <h1>Maintenance Access Control</h1>
+        <button id="btnOpen">OPEN GATE</button>
         <p id="statusMessage"></p>
     </div>
 
     <div class="note">
-        <p>Asegúrate de que tu ESP8266 esté conectado a Internet y a Blynk.</p>
-        <p>La puerta se cerrará automáticamente después de 5 segundos.</p>
-        <p>Este control usa la API HTTP de Blynk.</p>
+        <p>Ensure your ESP8266 is connected to the internet and Blynk Cloud.</p>
+        <p>The gate will automatically close after 5 seconds.</p>
+        <p>This control uses the Blynk HTTP API.</p>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN DE BLYNK ---
-        const BLYNK_AUTH_TOKEN = "YxdPUe_5zuLJys0DpyHxtl85VUfwt_FR";
-        const VIRTUAL_PIN = "V1";
+        // --- BLYNK CONFIGURATION ---
+        // !!! IMPORTANT: REPLACE "YOUR_AUTH_TOKEN_HERE" WITH YOUR ACTUAL BLYNK AUTH TOKEN !!!
+        const BLYNK_AUTH_TOKEN = "YxdPUe_5zuLJys0DpyHxtl85VUfwt_FR"; // Your Blynk Auth Token
+        const VIRTUAL_PIN = "V1"; // The Virtual Pin you configured in Blynk (e.g., V1)
         // --------------------------------
 
         const BASE_URL = `http://blynk.cloud/external/api/update?token=${BLYNK_AUTH_TOKEN}&${VIRTUAL_PIN}=`;
         const statusMessage = document.getElementById('statusMessage');
 
+        // Function to send commands to Blynk
         async function sendBlynkCommand(value) {
             const url = BASE_URL + value;
-            statusMessage.textContent = 'Enviando comando...';
-            statusMessage.className = '';
+            statusMessage.textContent = 'Sending command...';
+            statusMessage.className = ''; // Clear previous status classes
 
             try {
                 const response = await fetch(url);
-                if (response.ok) {
-                    statusMessage.textContent = `Comando enviado exitosamente: ${value === 1 ? 'ABIERTO' : 'CERRADO'}`;
+                if (response.ok) { // Check if the HTTP response was successful (status code 200)
+                    statusMessage.textContent = `Command sent successfully: ${value === 1 ? 'OPENED' : 'CLOSED'}`;
                     statusMessage.className = 'success';
                 } else {
                     const errorText = await response.text();
-                    statusMessage.textContent = `Error al enviar comando. Código: ${response.status} - ${errorText}`;
+                    statusMessage.textContent = `Error sending command. Code: ${response.status} - ${errorText}`;
                     statusMessage.className = 'error';
                 }
             } catch (error) {
-                statusMessage.textContent = `Error de red: ${error.message}. Verifica tu conexión o el token.`;
+                statusMessage.textContent = `Network error: ${error.message}. Check your connection or token.`;
                 statusMessage.className = 'error';
             }
         }
 
+        // Assign function to the open button
         document.getElementById('btnOpen').addEventListener('click', () => {
-            sendBlynkCommand(1);
+            sendBlynkCommand(1); // Always send 1 (ON)
         });
-
-        // --- Registro del Service Worker ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registrado con éxito:', registration);
-                    })
-                    .catch(error => {
-                        console.error('Fallo el registro del Service Worker:', error);
-                    });
-            });
-        }
     </script>
 </body>
 </html>
