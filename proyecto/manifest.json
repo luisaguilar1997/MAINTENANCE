@@ -2,7 +2,7 @@
     "name": "Control Puerta Blynk",
     "short_name": "Puerta Blynk",
     "description": "Control de acceso para el taller de mantenimiento via Blynk.",
-    "start_url": "/abrir_puerta.html",
+    "start_url": "/Maintenance Shop Access.html",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#195B6A",
