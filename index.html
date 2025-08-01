@@ -1,118 +1,35 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Acceso (Blynk HTTP API)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        h1 {
-            color: #195B6A;
-            margin-bottom: 25px;
-        }
-        .button-group button {
-            background-color: #195B6A;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            margin: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            min-width: 150px; /* Para que los botones tengan un tamaño similar */
-        }
-        .button-group button:hover {
-            background-color: #0d3b44;
-        }
-        .button-group button:active {
-            background-color: #0a2d34;
-        }
-        #statusMessage {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #555;
-        }
-        #statusMessage.success {
-            color: #28a745; /* Verde para éxito */
-        }
-        #statusMessage.error {
-            color: #dc3545; /* Rojo para error */
-        }
-        .note {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
-        }
-    </style>
+    <title>Control de LED</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Control de Acceso (Mantenimiento)</h1>
-        <div class="button-group">
-            <button id="btnOpen">ABRIR PUERTA</button>
-            <button id="btnClose">CERRAR PUERTA</button>
-        </div>
-        <p id="statusMessage"></p>
-    </div>
-
-    <div class="note">
-        <p>Asegúrate de que tu ESP8266 esté conectado a Internet y a Blynk.</p>
-        <p>Este control usa la API HTTP de Blynk. El Auth Token se encuentra en el código fuente de esta página.</p>
-    </div>
+    <h1>Controla tu LED</h1>
+    <button onclick="turnOnLed()">Encender LED</button>
+    <button onclick="turnOffLed()">Apagar LED</button>
 
     <script>
-        // --- CONFIGURACIÓN DE BLYNK ---
-        // !!! MUY IMPORTANTE: REEMPLAZA "TU_AUTH_TOKEN_AQUI" CON TU TOKEN REAL DE BLYNK !!!
-        const BLYNK_AUTH_TOKEN = "YxdPUe_5zuLJys0DpyHxtl85VUfwt_FR"; // Tu token de autenticación de Blynk
-        const VIRTUAL_PIN = "V1"; // El pin virtual que configuraste en Blynk (ej: V1)
-        // --------------------------------
+        // Esta es la URL de tu función de Netlify que cambiará el estado del LED
+        const apiEndpoint = "https://tudominio.netlify.app/.netlify/functions/led-command";
 
-        const BASE_URL = `http://blynk.cloud/external/api/update?token=${BLYNK_AUTH_TOKEN}&${VIRTUAL_PIN}=`;
-        const statusMessage = document.getElementById('statusMessage');
-
-        // Función para enviar comandos a Blynk
-        async function sendBlynkCommand(value) {
-            const url = BASE_URL + value;
-            statusMessage.textContent = 'Enviando comando...';
-            statusMessage.className = ''; // Limpia clases de estado anteriores
-
-            try {
-                const response = await fetch(url);
-                if (response.ok) { // Verifica si la respuesta HTTP fue exitosa (código 200)
-                    statusMessage.textContent = `Comando enviado exitosamente: ${value === 1 ? 'ON' : 'OFF'}`;
-                    statusMessage.className = 'success';
-                } else {
-                    const errorText = await response.text();
-                    statusMessage.textContent = `Error al enviar comando. Código: ${response.status} - ${errorText}`;
-                    statusMessage.className = 'error';
-                }
-            } catch (error) {
-                statusMessage.textContent = `Error de red: ${error.message}. Verifica tu conexión o el token.`;
-                statusMessage.className = 'error';
-            }
+        function turnOnLed() {
+            fetch(apiEndpoint, {
+                method: 'POST',
+                body: JSON.stringify({ state: 'ON' }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => console.log('Comando de encendido enviado.'))
+            .catch(error => console.error('Error:', error));
         }
-
-        // Asignar funciones a los botones
-        document.getElementById('btnOpen').addEventListener('click', () => sendBlynkCommand(1));
-        document.getElementById('btnClose').addEventListener('click', () => sendBlynkCommand(0));
+        function turnOffLed() {
+            fetch(apiEndpoint, {
+                method: 'POST',
+                body: JSON.stringify({ state: 'OFF' }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => console.log('Comando de apagado enviado.'))
+            .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>
