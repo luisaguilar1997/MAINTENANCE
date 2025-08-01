@@ -1,0 +1,11 @@
+{
+  "name": "netlify-functions-dependencies",
+  "version": "1.0.0",
+  "description": "Dependencies for Netlify functions",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
