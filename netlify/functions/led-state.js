@@ -1,29 +1,9 @@
-const fs = require('fs');
-
-const STATE_FILE = './state.txt';
-
+// Esta es la función que Netlify ejecutará cuando el ESP8266 la llame
 exports.handler = async function(event, context) {
-  // Maneja una solicitud POST para cambiar el estado
-  if (event.httpMethod === 'POST') {
-    const { state } = JSON.parse(event.body);
-    if (state === 'ON' || state === 'OFF') {
-      fs.writeFileSync(STATE_FILE, state);
-      return { statusCode: 200, body: `State set to ${state}` };
-    }
-  }
-
-  // Maneja una solicitud GET para leer el estado
-  try {
-    const currentState = fs.readFileSync(STATE_FILE, 'utf-8').trim();
-    return {
-      statusCode: 200,
-      body: currentState
-    };
-  } catch (error) {
-    // Si el archivo no existe, devuelve el estado por defecto
-    return {
-      statusCode: 200,
-      body: "OFF"
-    };
-  }
+  // Aquí es donde pondrías la lógica para leer el estado del LED
+  // Por ahora, simplemente devolvemos la cadena "ON"
+  return {
+    statusCode: 200,
+    body: "ON"
+  };
 };
