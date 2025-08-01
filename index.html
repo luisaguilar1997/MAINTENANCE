@@ -8,28 +8,29 @@
     <button onclick="turnOnLed()">Encender LED11</button>
     <button onclick="turnOffLed()">Apagar LED</button>
 
-    <script>
-        // Esta es la URL de tu función de Netlify que cambiará el estado del LED
-        const apiEndpoint = "https://maintenancetopre.netlify.app/.netlify/functions/led-command";
+ <script>
+    // Esta es la URL de tu única función de Netlify
+    const apiEndpoint = "https://maintenancetopre.netlify.app/.netlify/functions/led-state";
 
-        function turnOnLed() {
-            fetch(apiEndpoint, {
-                method: 'POST',
-                body: JSON.stringify({ state: 'ON' }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => console.log('Comando de encendido enviado.'))
-            .catch(error => console.error('Error:', error));
-        }
-        function turnOffLed() {
-            fetch(apiEndpoint, {
-                method: 'POST',
-                body: JSON.stringify({ state: 'OFF' }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => console.log('Comando de apagado enviado.'))
-            .catch(error => console.error('Error:', error));
-        }
-    </script>
+    function turnOnLed() {
+        fetch(apiEndpoint, {
+            method: 'POST',
+            body: JSON.stringify({ state: 'ON' }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => console.log('Comando de encendido enviado.'))
+        .catch(error => console.error('Error:', error));
+    }
+    function turnOffLed() {
+        fetch(apiEndpoint, {
+            method: 'POST',
+            body: JSON.stringify({ state: 'OFF' }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => console.log('Comando de apagado enviado.'))
+        .catch(error => console.error('Error:', error));
+    }
+</script>
 </body>
 </html>
+
